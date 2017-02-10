@@ -1,0 +1,37 @@
+
+<project name="compile n run java class" default="jar">
+<target name="init">
+<mkdir dir="dist1"/>
+<mkdir dir="lib"/>
+<!--<mkdir dir="ear"/>--></target>
+<target name="run">
+<java classname="dist1">
+<classpath path="dist1"/>
+</java>
+</target>
+<target name="compile">
+<javac destdir="dist1" srcdir="src"/>
+</target>
+<target name="jar" depends="init,clean,compile,run">
+<jar basedir="dist1" destfile="lib/world.jar"/>
+</target>
+<!--+<target name="war">
+-<target name="ear" depends="cleanwar,init,compile,run,jar,war">
+-<ear destfile="ear/create.ear" appxml="application.xml">
+<fileset dir="." includes="create.war"/>
+</ear>
+</target>-->
+<target name="clean">
+ <delete> 
+ <fileset dir="dist1"> 
+ <include name="*"/> 
+ </fileset> 
+ </delete> 
+ </target>
+<!--<target name="cleanwar">
+-<delete>
+<fileset dir="." includes="create.war"> </fileset>
+</delete>
+</target> -->
+
+</project>

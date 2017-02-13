@@ -1,0 +1,53 @@
+<project default="war" name="compile n run java class">
+<property name="builder" value="bhargavi"/>
+<tstamp prefix="build-info">
+<format property="current-date" pattern="d-mmmm-yyyy" locale="en"/>
+<format property="current-time" pattern="hh:mm:ss a z" locale="en"/>
+</tstamp>
+<target name="init">
+<mkdir dir="dist1"/>
+<mkdir dir="lib"/>
+</target>
+<target name="run">
+<java classname="dist1/HelloWorld">
+<classpath path="dist1"></classpath>
+</java>
+ </target>
+<target name="compile">
+ <javac srcdir="src" destdir="dist1"/>
+</target>
+<target name="jar">
+	<jar destfile="lib/aarnav.jar" basedir="dist1"/>
+	</target> 
+<target name="war" depends="cleanwar,init,compile,run,jar">
+<war destfile="create.war" webxml="WEB-INF/web.xml">
+<lib dir="lib"/>
+<manifest>
+ <attribute name="built-by" value="${builder}"/>
+ <attribute name="built-on" value="${build-info.current-date}"/>
+ <attribute name="built-at" value="${build-info.current-time}"/>
+</manifest>
+</war>
+</target>
+<!--<target name="ear" depends="cleanwar,init,compile,run,jar,war">
+ <ear destfile="ear/create.ear" appxml="application.xml">
+ <fileset dir="." includes="create.war"/>
+</ear>
+ </target>-->
+<target name="clean">
+		<delete>
+	<fileset dir="dist1">
+	    <include name="*"/>
+	    </fileset>
+</delete>
+		</target> 
+		
+		<target name="cleanwar">
+		<delete>
+		<fileset dir="." includes="create.war">
+		</fileset>
+</delete>		
+</target>
+	
+	
+</project>

@@ -9,7 +9,7 @@
 <mkdir dir="lib"/>
 </target>
 <target name="run">
-<java classname="dist1/HelloWorld">
+<java classname="HelloWorld">
 <classpath path="dist1"></classpath>
 </java>
  </target>

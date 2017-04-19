@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Same is ivysettings.xml, except for the addition of a new remote repository, jfrog-repo1.-->
+<ivy-settings>
+	<settings defaultResolver="read" />
+	<credentials host="192.168.56.102:8080" realm="Artifactory Realm" username="admin" passwd="password" />
+
+
+	<resolvers>
+	<url name="publish" m2compatible="true"> 
+ 	<ivy pattern="http://192.168.56.102:8080/artifactory/test-local/[organisation]/[module]/[revision]/[module]-[revision]-ivy.xml" />
+       <artifact pattern="http://192.168.56.102:8080/artifactory/test-local/[organization]/[module]/[revision]/[artifact]-[revision](-[type])(-[classifier]).[ext]" />
+     </url>
+		<filesystem name="publish-local">
+			<artifact
+				pattern="${ivy.default.ivy.user.dir}/local/[organization]/[module]/[artifact]-[revision].[ext]" />
+			<ivy 
+				pattern="${ivy.default.ivy.user.dir}/local/[organisation]/[module]/[module]-[revision]-ivy.xml" />
+		</filesystem>
+
+		<chain name="read" returnFirst="true">
+			<resolver ref="publish-local"/>
+			<url name="test-local" m2compatible="true">
+				<ivy
+					pattern="http://192.168.56.102:8080/artifactory/test-local/[organisation]/[module]/[revision]/[module]-[revision]-ivy.xml" />
+				<artifact
+					pattern="http://192.168.56.102:8080/artifactory/test-local/[organization]/[module]/[revision]/[artifact]-[revision](-[type])(-[classifier]).[ext]" />
+			</url>
+			<!--<url name="external-release-local" m2compatible="true">
+				<artifact
+					pattern="http://192.168.56.102:8080/artifactory/external-release-local/[organization]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]" />
+			</url> -->
+			<ibiblio name="test-remote" m2compatible="true" root="http://192.168.56.102:8080/artifactory/test-remote" />
+			<!--<ibiblio name="oracle-maven" m2compatible="true" root="http://192.168.56.102:8080/artifactory/oracle-maven" /> -->
+		</chain>
+	</resolvers>
+</ivy-settings>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+ Any modifications will be overwritten.
+ To include a user specific buildfile here, simply create one in the same
+ directory with the processing instruction <?eclipse.ant.import?>
+ as the first entry and export the buildfile again. -->
+<project basedir="." default="create.war" name="WebssoWeb" xmlns:ivy="antlib:org.apache.ivy.ant" >
+	<property file="build.properties" />
+	
+	<!-- connect to jenkins environment properties -->
+	<property environment="jenkins" />
+	<!-- default when not in jenkins -->
+	<property name="jenkins.BUILD_NUMBER" value="---"/>
+	
+	
+ <ivy:settings url="http://ivy.sherwin.com/ivysettings2.xml" />
+	
+	<!-- clean up files before doing build -->
+	<target name="clean">
+	<delete dir="${build.dir}" />
+	<delete dir="${dist.dir}" />
+ <delete dir="${lib.dir}" />
+	</target>
+
+	<target name="init" depends="clean">
+	<mkdir dir="${build.dir}" />
+	<mkdir dir="${build.classes}" />
+	<mkdir dir="${build.webroot}" />
+	<mkdir dir="${build.metainf}" />
+	<mkdir dir="${build.lib}" />
+	<mkdir dir="${dist.dir}" />
+	<mkdir dir="${dist.source}" />
+	<mkdir dir="${dist.jar}" />
+	</target>
+	
+	<target name="copy-webroot-files">
+	<!-- The source WebRoot is copied to the build directory, to be used both for 
+	building the WAR file and for MyEclipse's autodeployment. Arranging thins
+	this way helps prevent Ivy dependencies from accidentally getting committed
+	into the WEB-INF/lib of the source files. 
+	-->
+	<copy todir="${build.webroot}">
+	<fileset dir="${web.content}">
+	</fileset>
+	</copy>
+	</target>
+
+	<target name="resolve-deps" depends="init" description="retrieve dependencies with ivy">
+	<ivy:resolve />
+
+	<!-- build classpath required for compilation (may include JAR files that will be configured globally on the server) -->
+	<ivy:cachepath pathid="compile.classpath" conf="*" />
+
+	<ivy:retrieve pattern="${build.lib}/[artifact]-[revision].[ext]" conf="*" sync="true" />
+	</target>
+
+	<!-- compile classes -->
+	<target name="compile" depends="resolve-deps">
+	<javac target="1.7" debug="on" includeantruntime="false" srcdir="${src.dir}" destdir="${build.classes}" includes="com/**">
+	<classpath refid="compile.classpath" />	
+	</javac>
+
+	<!-- Copy non-Java files to the 'classes' directory... -->
+	<copy todir="${build.classes}">
+	<fileset dir="${src.dir}">
+	<exclude name="**/*.java" />
+	</fileset>
+	</copy>
+
+	</target>
+
+	<target name="jar" depends="compile">
+	<!-- First build a manifest with useful information -->
+	<tstamp>
+	<format property="build.time" pattern="yyyy-MM-dd-HH:mm:ss" />
+	</tstamp>
+
+	<manifest file="${build.dir}/MANIFEST.MF">
+	<attribute name="Build-Time" value="${build.time}" />
+	<attribute name="Ivy-version" value="${version}" />
+	<attribute name="Implementation-Title" value="${jar.filename}" />
+	<attribute name="Implementation-Version" value="${version}_b${jenkins.BUILD_NUMBER}" />
+	<attribute name="Git-commit-hash" value="${git.commit.hash}" />
+	</manifest>
+
+	<jar basedir="${build.classes}"
+	destfile="${dist.jar}/${jar.filename}.jar"
+	manifest="${build.dir}/MANIFEST.MF" />
+
+	</target>
+
+
+	<!-- build the WAR file -->
+	<target name="create.war" depends="jar,copy-webroot-files">
+
+	<!-- Build a manifest with useful information -->
+	<tstamp>
+	<format property="build.time" pattern="yyyy-MM-dd-HH:mm:ss" />
+	</tstamp>
+
+	<manifest file="${build.metainf}/MANIFEST.MF">
+	<attribute name="Weblogic-Application-Version" value="${version}b${jenkins.BUILD_NUMBER}" />
+	<attribute name="Build-Time" value="${build.time}" />
+	<attribute name="Implementation-Title" value="${war.filename}" />
+	<attribute name="Implementation-Version" value="${version}_b${jenkins.BUILD_NUMBER}" />
+	<attribute name="Git-commit-hash" value="${git.commit.hash}" />
+	</manifest>
+
+	<war destfile="${dist.dir}/${war.filename}_v${version}b${jenkins.BUILD_NUMBER}.war"
+	webxml="${build.webinf}/web.xml"
+	manifest="${build.metainf}/MANIFEST.MF">
+	<!-- jdk Copy local jar, not in artifactory -->
+	<lib dir="${dist.jar}">
+	<include name="${jar.filename}.jar" />
+	</lib>
+
+
+	<webinf dir="${build.webinf}">
+	<exclude name="**/classes/" />
+	</webinf>
+
+	<!-- copy other webapp files such as JSP -->
+	<fileset dir="${build.webroot}">
+	<include name="**" />
+	<exclude name="WEB-INF/**" />
+	</fileset>
+
+	</war>
+
+	</target>
+	
+</project>

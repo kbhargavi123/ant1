@@ -1,0 +1,17 @@
+<?xml version= "1.0" encoding ="ISO-8859-1"?>
+<ivy-module version= "2.0" xmlns:xsi ="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation ="http://ant.apache.org/ivy/schemas/ivy.xsd"
+	xmlns:e="http://ant.apache.org/ivy/extra">
+	<info organisation= "com.sherwin" module ="hello" status= "release" />	
+	
+	<configurations>
+		<conf name="runtime" transitive="true"/>
+		<conf name="compile" />
+	</configurations>
+	<dependencies>
+	<dependency org="world" name="world" rev="1.0">
+    <artifact name="world" ext="jar"/>
+</dependency>
+		
+		
+	</dependencies>
+</ivy-module>

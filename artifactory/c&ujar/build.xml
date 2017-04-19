@@ -1,0 +1,58 @@
+
+<project name="compile n run java class" default="jar" xmlns:ivy="antlib:org.apache.ivy.ant" >
+<target name="init">
+<mkdir dir="dist1"/>
+<mkdir dir="lib"/>
+<!--<mkdir dir="ear"/>--></target>
+<ivy:settings file="D:\work1\ant1\ivysettings2.xml" />
+<target name="run">
+<java classname="HelloWorld">
+<classpath path="dist1"/>
+</java>
+</target>
+ <target name="resolve-deps" depends="init" description="retrieve dependencies with ivy">
+	<ivy:resolve />
+
+	<!-- build classpath required for compilation (may include JAR files that will be configured globally on the server) -->
+	<ivy:cachepath pathid="compile.classpath" conf="*" />
+
+	<ivy:retrieve pattern="lib/[artifact]-[revision].[ext]" conf="*" sync="true" />
+	</target>
+<target name="compile" depends="resolve-deps">
+<javac destdir="dist1" srcdir="src">
+<classpath refid="compile.classpath" />
+</javac>
+</target>
+<target name="jar" depends="init,clean,compile,run">
+<jar basedir="dist1" destfile="lib/hello.jar"/>
+</target>
+<!--+<target name="war">
+-<target name="ear" depends="cleanwar,init,compile,run,jar,war">
+-<ear destfile="ear/create.ear" appxml="application.xml">
+<fileset dir="." includes="create.war"/>
+</ear>
+</target>-->
+<target name="clean">
+ <delete> 
+ <fileset dir="dist1"> 
+ <include name="*"/> 
+ </fileset> 
+ </delete> 
+ </target>
+ <target name="publish-release" depends="jar">
+
+<ivy:publish artifactspattern="lib/[artifact].[ext]"
+resolver="publish"
+status="release"
+overwrite="true"
+update="true"
+pubrevision="1.0" />
+</target>
+
+<!--<target name="cleanwar">
+-<delete>
+<fileset dir="." includes="create.war"> </fileset>
+</delete>
+</target> -->
+
+</project>
